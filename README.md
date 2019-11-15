@@ -1,7 +1,7 @@
 # ITA_soy_sauce_dish
 
 ## DEMO
-[http://takose.me/ITA_soy_sauce_dish/](http://takose.me/ITA_soy_sauce_dish/)
+[https://kzkponkotu.github.io/ITA_soy_sauce_dish/](https://kzkponkotu.github.io/ITA_soy_sauce_dish/)
 
 ## 使い方
 
