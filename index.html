@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html style="width: 100%;">
+<!--
+
+== OpenJSCAD.org, Copyright (c) 2016-2017, Licensed under MIT License ==
+   in conjunction with other libraries by various authors (see the individual files)
+
+Purpose:
+  This application provides an example of how to show JSCAD designs with minimal HTML and CSS.
+-->
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <title>OpenJSCAD.org Logo</title>
+  <link rel="stylesheet" href="loaders.min.css" type="text/css">
+  <link rel="stylesheet" href="min.css" type="text/css">
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Unity WebGL Player | soy_simu</title>
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link href="https://fonts.googleapis.com/earlyaccess/sawarabigothic.css" rel="stylesheet" />
+  <script src="TemplateData/UnityProgress.js"></script>
+  <script src="Build/UnityLoader.js"></script>
+  <script>
+
+    let unity_kidou = false;
+    let openjscad_kidou = false;
+    let openjscad_polygons = new Array();
+    function UnityAwake() {
+      unity_kidou = true;
+      if (unity_kidou && openjscad_kidou) {
+        //console.log(openjscad_polygons.length);
+        //console.log(openjscad_polygons);
+        let polystr = "";
+        for (let i = 0; i < openjscad_polygons.length; i++) {
+          gameInstance.SendMessage('make_stl', 'pushpolygons', openjscad_polygons[i][0]);
+          gameInstance.SendMessage('make_stl', 'pushpolygons', openjscad_polygons[i][1]);
+          gameInstance.SendMessage('make_stl', 'pushpolygons', openjscad_polygons[i][2]);
+          polystr += openjscad_polygons[i][0] + "," + openjscad_polygons[i][1] + "," + openjscad_polygons[i][2] + ",";
+        }
+        //console.log(polystr);
+        gameInstance.SendMessage('make_stl', 'makepolygons');
+        openjscad_polygons = null;
+        openjscad_polygons = new Array();
+
+      }
+
+      /*
+      let polygonstr = "";
+      for (let i = 0; i < openjscad_polygons.length; i++) {
+        polygonstr += openjscad_polygons[i];
+      }
+      polygonstr = polygonstr.slice(0, -1);
+      gameInstance.SendMessage('make_stl', 'make_stl', polygonstr);
+      */
+    }
+
+    var gameInstance = UnityLoader.instantiate("gameContainer", "Build/soy_simu_temp.json", { onProgress: UnityProgress });
+    //gameInstance.SendMessage('make_stl', 'make_stl', 'MyString');
+    //gameInstance.SendMessage('make_stl', 'make_stl', '30,30,2.01,30,-30,2.01,-30,-30,2.01,');
+  </script>
+
+</head>
+
+<body onload="draw1('./soyimgs/ringo.png');" style="width: 100%;">
+  <script>
+    setInterval(function () {
+      document.getElementById("statusspan").style = "display: none;";
+      document.getElementsByTagName("select")[0].style = "display: none;";
+      let elms = document.getElementById("statusbuttons").children;
+      for (let i = 0; i < elms.length; i++) {
+        if (elms[i].nodeName == "BUTTON") {
+          //elms[i].innerHTML = "STL生成";
+          document.getElementsByClassName("footer")[0].appendChild(elms[i]);
+        }
+        document.getElementsByClassName("downloadOutputFileLink")[0].innerHTML = "ダウンロード";
+        document.getElementsByClassName("footer")[0].appendChild(document.getElementsByClassName("downloadOutputFileLink")[0]);
+      }
+    }, 1);
+
+    let syouyu_image;
+    let syouyu_canvas;
+    let img = new Image();    //画像オブジェクト作成
+
+    function draw1(imgname) {
+
+      var file = document.getElementById('makesoyimg');
+      var result = document.getElementById('result');
+
+      function loadLocalImage(e) {
+        // ファイル情報を取得
+        var fileData = e.target.files[0];
+
+        // 画像ファイル以外は処理を止める
+        if (!fileData.type.match('image.*')) {
+          alert('画像を選択してください');
+          return;
+        }
+
+        // FileReaderオブジェクトを使ってファイル読み込み
+        var reader = new FileReader();
+        // ファイル読み込みに成功したときの処理
+        reader.onload = function () {
+          // ブラウザ上に画像を表示する
+          /*
+          var img = document.createElement('img');
+          img.src = reader.result;
+          result.appendChild(img);
+          */
+
+          img = new Image();
+          img.src = reader.result;  //写真のパスを指定する
+          img.onload = function () {
+            var ctx = document.getElementById("img_byouga").getContext("2d");
+            ctx.clearRect(0, 0, 60, 60);
+            ctx.drawImage(img, 0, 0, 60, 60);
+            syouyu_canvas = document.getElementById("img_byouga").getContext("2d");
+            syouyu_image = syouyu_canvas.getImageData(0, 0, 60, 60);
+            document.getElementById("updateButton").click();
+          }
+        }
+        // ファイル読み込みを実行
+        reader.readAsDataURL(fileData);
+      }
+
+      // ファイルが指定された時にloadLocalImage()を実行
+      file.addEventListener('change', loadLocalImage, false);
+
+      img = new Image();
+      img.src = imgname;  //写真のパスを指定する
+      img.onload = function () {
+        var ctx = document.getElementById("img_byouga").getContext("2d");
+        ctx.clearRect(0, 0, 60, 60);
+        ctx.drawImage(img, 0, 0, 60, 60);
+        syouyu_canvas = document.getElementById("img_byouga").getContext("2d");
+        syouyu_image = syouyu_canvas.getImageData(0, 0, 60, 60);
+        document.getElementById("updateButton").click();
+        document.getElementsByClassName("loader-inner")[0].style = "display: block;";
+      }
+    }
+  </script>
+  <script src="dist/min.js"></script>
+
+  <div class="container">
+    <div id="result"></div>
+    <h1>ITA Soy Sauce Dish</h1>
+    <section class="step-select">
+      <!-- inputはドラック＆ドロップ対応してるらしい -->
+      <h2 class="step">
+        1. 写真を選択
+      </h2>
+      <div class="select-photo-wrapper">
+
+        <div class="select-option">
+          <h3>サンプルから選択</h3>
+          <div class="image-examples">
+            <button onclick="draw1('./soyimgs/duck.png')" imgname="duck">
+              <img src="./soyimgs/duck.png" alt="">
+            </button>
+            <button onclick="draw1('./soyimgs/gradation.png')" imgname="gradation">
+              <img src="./soyimgs/gradation.png" alt="">
+            </button>
+            <button onclick="draw1('./soyimgs/mikan.png')" imgname="mikan">
+              <img src="./soyimgs/mikan.png" alt="">
+            </button>
+            <button onclick="draw1('./soyimgs/ringo.png')" imgname="ringo">
+              <img src="./soyimgs/ringo.png" alt="">
+            </button>
+          </div>
+          <p>もしくは</p>
+          <h3>画像をアップロード</h3>
+          <label class="select-photo" for="makesoyimg">
+            <input type="file" id="makesoyimg" style="display:block; opacity:0.0;">
+            <p class="plus">
+              ここに画像を
+              <br>ドラッグアンドドロップ
+            </p>
+          </label>
+        </div>
+        <div class="use-image">
+          <div class="loader-inner ball-pulse" style="display: none;">
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+
+          <p>使用画像</p>
+          <canvas id="img_byouga" width="60" height="60" style="width: 60px; height: 60px;"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- setup display of the errors as required by OpenJSCAD.js -->
+    <section class="fix-params">
+      <h2 class="step">
+        2. パラメータ調整
+      </h2>
+      <div class="jscad-container">
+        <div class="preview">
+          <!-- setup display of the viewer, i.e. canvas -->
+          <div oncontextmenu="return false;" id="viewerContext" design-url="syouyuzara.jscad"></div>
+          <!-- setup display of the status, as required by OpenJSCAD.js -->
+          <!-- set display: block to display this -->
+          <div id="tail" style="display: block;">
+            <div id="statusdiv"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="webgl-content">
+      <h2 class="step">
+        プレビュー
+      </h2>
+      <div id="gameContainer" style="width: 960px; height: 600px"></div>
+      <div class="footer">
+        <div class="webgl-logo"></div>
+        <div class="fullscreen" onclick="gameInstance.SetFullscreen(1)"></div>
+      </div>
+  </div>
+  <section>
+    </div>
+</body>
+
+</html>
